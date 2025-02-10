@@ -1,0 +1,30 @@
+#!/bin/bash
+
+EFFICIENCY=$2
+EXPT_ROOT=${PWD}/efficiency_$EFFICIENCY
+
+cd $SPOTEM_ROOT
+
+
+CUDA_VISIBLE_DEVICES="$1" python VSLNet/main.py \
+    --task nlq_official_v1 \
+    --predictor egovlp-distilbert \
+    --dim 128 \
+    --mode train \
+    --video_feature_dim 3584 \
+    --feature_mask_idxs 0 2303 \
+    --max_pos_len 128 \
+    --epochs 200 \
+    --fv 'internvideo+imagenet' \
+    --num_workers 64 \
+    --model_dir $EXPT_ROOT/checkpoints/ \
+    --eval_gt_json "data/nlq_val.json" \
+    --tb_log_dir $EXPT_ROOT/tb \
+    --log_to_tensorboard "baseline" \
+    --remove_empty_queries_from train val \
+    --batch_size 128 \
+    --init_lr 0.001 \
+    --use_feature_sampler \
+    --feature_sampler_type "ocsampler" \
+    --feature_sampler_efficiency $EFFICIENCY \
+    --eval_freq 1
